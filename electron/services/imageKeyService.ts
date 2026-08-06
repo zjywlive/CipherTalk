@@ -1,6 +1,6 @@
 import * as fs from 'fs'
-import * as path from 'path'
 import { wxKeyService } from './wxKeyService'
+import { findRecentTemplateDatFiles } from './imageTemplateFinder'
 
 /**
  * 图片密钥服务。
@@ -11,47 +11,7 @@ class ImageKeyService {
    * 查找模板文件 (_t.dat)
    */
   private findTemplateDatFiles(rootDir: string): string[] {
-    const files: string[] = []
-    const stack = [rootDir]
-    const maxFiles = 32
-
-    while (stack.length && files.length < maxFiles) {
-      const dir = stack.pop() as string
-      let entries: string[]
-      try {
-        entries = fs.readdirSync(dir)
-      } catch {
-        continue
-      }
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry)
-        let stats: fs.Stats
-        try {
-          stats = fs.statSync(fullPath)
-        } catch {
-          continue
-        }
-        if (stats.isDirectory()) {
-          stack.push(fullPath)
-        } else if (entry.endsWith('_t.dat')) {
-          files.push(fullPath)
-          if (files.length >= maxFiles) break
-        }
-      }
-    }
-
-    if (!files.length) return []
-
-    // 按日期排序（优先最新的）
-    const dateReg = /(\d{4}-\d{2})/
-    files.sort((a, b) => {
-      const ma = a.match(dateReg)?.[1]
-      const mb = b.match(dateReg)?.[1]
-      if (ma && mb) return mb.localeCompare(ma)
-      return 0
-    })
-
-    return files.slice(0, 16)
+    return findRecentTemplateDatFiles(rootDir)
   }
 
   /**

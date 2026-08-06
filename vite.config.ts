@@ -17,7 +17,9 @@ const nodeBuiltinModules = new Set([
 const shouldBundleElectronDependency = (id: string) => (
   id === 'ai' ||
   id.startsWith('ai/') ||
-  id.startsWith('@ai-sdk/')
+  id.startsWith('@ai-sdk/') ||
+  id === '@modelcontextprotocol/sdk' ||
+  id.startsWith('@modelcontextprotocol/sdk/')
 )
 const dependencyExternal = Object.keys(pkg.dependencies || {})
   .filter((name) => !shouldBundleElectronDependency(name))
